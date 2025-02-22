@@ -1,6 +1,6 @@
 <?php 
 require_once("conexao.php");
-$senha = '123';
+$senha = '635241';
 $senha_crip = password_hash($senha, PASSWORD_DEFAULT);  // Usando password_hash para segurança
 
 // Criar um usuário caso não tenha nenhum super adm SAS
@@ -11,7 +11,7 @@ $total_reg = count($res);  // Removido o operador @
 if ($total_reg == 0) {
     // Preparando a consulta para inserir o novo usuário
     $sql = "INSERT INTO usuarios (empresa, nome, cpf, email, senha, senha_crip, ativo, foto, nivel, data) 
-            VALUES ('0', 'Administrador SAS', '022.274.415-42', 'itatech.dev@gmail.com', :senha, :senha_crip, 'Sim', 'sem-foto.jpg', 'SAS', CURDATE())";
+            VALUES ('1', 'Itatelino de Oliveira Leite Neto', '022.274.415-42', 'itatech.dev@gmail.com', :senha, :senha_crip, 'Sim', 'sem-foto.jpg', 'SAS', CURDATE())";
 
     $stmt = $pdo->prepare($sql);
 
