@@ -1,0 +1,299 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3307
+-- Tempo de geração: 22/02/2025 às 01:04
+-- Versão do servidor: 10.4.28-MariaDB
+-- Versão do PHP: 8.2.4
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Banco de dados: `paperpen`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `categorias`
+--
+
+CREATE TABLE `categorias` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `documento_recebimento`
+--
+
+CREATE TABLE `documento_recebimento` (
+  `id` int(11) NOT NULL,
+  `numero_documento` varchar(50) NOT NULL,
+  `tipo_documento` enum('Nota Fiscal','Fatura','Outro') NOT NULL,
+  `data_emissao` datetime NOT NULL,
+  `mercadoria_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `expedicoes`
+--
+
+CREATE TABLE `expedicoes` (
+  `id` int(11) NOT NULL,
+  `numero_nota_fiscal` varchar(50) NOT NULL,
+  `data_expedicao` datetime NOT NULL,
+  `status` enum('em_processamento','expedido','cancelado') NOT NULL,
+  `cliente_id` int(11) NOT NULL,
+  `mercadoria_id` int(11) NOT NULL,
+  `quantidade` int(11) NOT NULL,
+  `endereco_entrega` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `fornecedores`
+--
+
+CREATE TABLE `fornecedores` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(50) NOT NULL,
+  `cnpj` varchar(20) NOT NULL,
+  `endereco` varchar(100) NOT NULL,
+  `telefone` varchar(15) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `mercadorias`
+--
+
+CREATE TABLE `mercadorias` (
+  `id` int(11) NOT NULL,
+  `codigo_produto` varchar(50) NOT NULL,
+  `descricao` varchar(100) NOT NULL,
+  `quantidade` int(11) NOT NULL,
+  `unidade_medida` varchar(50) NOT NULL,
+  `peso` decimal(10,2) NOT NULL,
+  `volume` decimal(10,2) NOT NULL,
+  `categoria_id` int(11) NOT NULL,
+  `fornecedor_id` int(11) NOT NULL,
+  `data_recebimento` datetime NOT NULL,
+  `status` enum('Recebido','Armazenado','Expedido','Em Transito') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `movimentacoes`
+--
+
+CREATE TABLE `movimentacoes` (
+  `id` int(11) NOT NULL,
+  `tipo_movimentacao` enum('recebimento','descarregamento','armazenagem','expedicao') NOT NULL,
+  `mercadoria_id` int(11) NOT NULL,
+  `data_movimentacao` datetime NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `origem` varchar(100) NOT NULL,
+  `destino` varchar(100) NOT NULL,
+  `quantidade` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `pallets`
+--
+
+CREATE TABLE `pallets` (
+  `id` int(11) NOT NULL,
+  `codigo_pallet` varchar(50) NOT NULL,
+  `localizacao` varchar(50) NOT NULL,
+  `mercadoria_id` int(11) NOT NULL,
+  `data_armazenagem` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `usuarios`
+--
+
+CREATE TABLE `usuarios` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(50) NOT NULL,
+  `email` varchar(50) NOT NULL,
+  `senha_crip` varchar(100) NOT NULL,
+  `role` enum('Administradores','Operador','Gestor') NOT NULL,
+  `data_cadastro` datetime NOT NULL,
+  `cpf` varchar(20) NOT NULL,
+  `empresa` int(5) NOT NULL,
+  `ativo` varchar(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices de tabela `categorias`
+--
+ALTER TABLE `categorias`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `documento_recebimento`
+--
+ALTER TABLE `documento_recebimento`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_mercadoria_doc` (`mercadoria_id`);
+
+--
+-- Índices de tabela `expedicoes`
+--
+ALTER TABLE `expedicoes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_mercadoria_expedicao` (`mercadoria_id`);
+
+--
+-- Índices de tabela `fornecedores`
+--
+ALTER TABLE `fornecedores`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `mercadorias`
+--
+ALTER TABLE `mercadorias`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_categoria` (`categoria_id`),
+  ADD KEY `fk_fornecedor` (`fornecedor_id`);
+
+--
+-- Índices de tabela `movimentacoes`
+--
+ALTER TABLE `movimentacoes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_mercadoria_mov` (`mercadoria_id`);
+
+--
+-- Índices de tabela `pallets`
+--
+ALTER TABLE `pallets`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_mercadoria_pallet` (`mercadoria_id`);
+
+--
+-- Índices de tabela `usuarios`
+--
+ALTER TABLE `usuarios`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `email_2` (`email`),
+  ADD UNIQUE KEY `email_3` (`email`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `categorias`
+--
+ALTER TABLE `categorias`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `documento_recebimento`
+--
+ALTER TABLE `documento_recebimento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `expedicoes`
+--
+ALTER TABLE `expedicoes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `fornecedores`
+--
+ALTER TABLE `fornecedores`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `mercadorias`
+--
+ALTER TABLE `mercadorias`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `movimentacoes`
+--
+ALTER TABLE `movimentacoes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `pallets`
+--
+ALTER TABLE `pallets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `documento_recebimento`
+--
+ALTER TABLE `documento_recebimento`
+  ADD CONSTRAINT `fk_mercadoria_doc` FOREIGN KEY (`mercadoria_id`) REFERENCES `documento_recebimento` (`id`);
+
+--
+-- Restrições para tabelas `expedicoes`
+--
+ALTER TABLE `expedicoes`
+  ADD CONSTRAINT `fk_mercadoria_expedicao` FOREIGN KEY (`mercadoria_id`) REFERENCES `expedicoes` (`id`);
+
+--
+-- Restrições para tabelas `mercadorias`
+--
+ALTER TABLE `mercadorias`
+  ADD CONSTRAINT `fk_fornecedor` FOREIGN KEY (`fornecedor_id`) REFERENCES `fornecedores` (`id`);
+
+--
+-- Restrições para tabelas `movimentacoes`
+--
+ALTER TABLE `movimentacoes`
+  ADD CONSTRAINT `fk_mercadoria_mov` FOREIGN KEY (`mercadoria_id`) REFERENCES `movimentacoes` (`id`);
+
+--
+-- Restrições para tabelas `pallets`
+--
+ALTER TABLE `pallets`
+  ADD CONSTRAINT `fk_mercadoria_pallet` FOREIGN KEY (`mercadoria_id`) REFERENCES `pallets` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
